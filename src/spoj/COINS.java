@@ -1,49 +1,49 @@
 package spoj;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class COINS {
 
+    private static Map<Long, Long> mem = new HashMap<>();
+
     public static void main(String[] args) {
+        initMap();
+
         Scanner in = new Scanner(System.in);
-        int t = in.nextInt();
+        while (in.hasNextInt()) {
+            int n = in.nextInt();
+            long solution = runTrial(n);
+            System.out.println(solution);
+        }
+        in.close();
+    }
 
-        System.out.println("trials: " + t);
-        for (int i = 0; i < t; i++) {
-            runTrial(in);
+    private static void initMap() {
+        for (long i = 0; i <= 4; i++) {
+            mem.put(i,i);
         }
     }
 
-    private static void runTrial (Scanner in) {
-        int n = in.nextInt();
-        System.out.println("dollars: " + n);
-        int val = convertToBytelandian(n);
-        System.out.println("bytlandian: " + val);
-        System.out.println(val);
-    }
-
-    private static int convertToBytelandian(int n) {
-        int exchangeValue = 0;
-        int denomination = 2;
-
-        while (denomination != 5) {
-            exchangeValue = incrementByDenomination(exchangeValue, denomination, n);
-            System.out.println("current val: " + exchangeValue);
-            denomination++;
+    private static long runTrial(long n) {
+        if (n <= 4) {
+            return mem.get(n);
         }
-        return exchangeValue;
+        return buildSubSolutions(n);
     }
 
-    private static int incrementByDenomination(int exchangeVal, int denom, int val) {
-        if (isDivisible(val, denom)) {
-            int numberCoins = (val / denom);
-            System.out.println("\t number of " + denom + " coins: " + numberCoins);
+    private static long buildSubSolutions(long n) {
+        if (mem.get(n) == null) {
+            long sol1 = buildSubSolutions(n/2);
+            long sol2 = buildSubSolutions(n/3);
+            long sol3 = buildSubSolutions(n/4);
+
+            long curSol = sol1 + sol2 + sol3;
+            long val = Math.max(curSol, n);
+            mem.put(n, val);
         }
-        return exchangeVal;
-    }
 
-    private static boolean isDivisible(int n, int d) {
-        double dividend = (double) n / d;
-        return (dividend % 1) == 0;
+        return mem.get(n);
     }
 }
